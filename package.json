@@ -4,7 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:development": "cross-env BUILD=development nodemon server.js",
+    "start:client": "cross-env BUILD=client nodemon server.js",
+    "db:migrate:development": "cross-env BUILD=development sequelize-cli db:migrate",
+    "db:migrate:client": "cross-env BUILD=client sequelize-cli db:migrate",
+    "db:reset:development": "cross-env BUILD=development sequelize-cli db:migrate:undo:all && cross-env BUILD=development sequelize-cli db:migrate && cross-env BUILD=development sequelize-cli db:seed:all",
+    "db:reset:client": "cross-env BUILD=client sequelize-cli db:migrate:undo:all && cross-env BUILD=client sequelize-cli db:migrate && cross-env BUILD=client sequelize-cli db:seed:all",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -30,15 +35,20 @@
   },
   "homepage": "https://github.com/ifenilpatel/node-stage1#readme",
   "dependencies": {
+    "bullmq": "^5.77.1",
     "compression": "^1.8.1",
     "cors": "^2.8.6",
+    "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "helmet": "^8.2.0",
+    "ioredis": "^5.10.1",
     "morgan": "^1.10.1",
     "pg": "^8.21.0",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.8"
+    "sequelize": "^6.37.8",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -48,6 +58,7 @@
     "globals": "^17.6.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.5",
+    "nodemon": "^3.1.14",
     "prettier": "^3.8.3",
     "sequelize-cli": "^6.6.5"
   }
