@@ -2,6 +2,7 @@ class UserDTO {
   constructor(body = {}) {
     this.user_id = body.user_id ?? null;
     this.first_name = body.first_name ?? null;
+    this.is_active = body.is_active ?? null;
   }
 
   static _getItem(entity) {
@@ -14,6 +15,7 @@ class UserDTO {
     return {
       user_id: item.user_id,
       first_name: item.first_name,
+      is_active: item.is_active,
       created_at: item.created_at,
       updated_at: item.updated_at
     };

@@ -1,11 +1,25 @@
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION');
+  console.error(err);
+
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('UNHANDLED REJECTION');
+  console.error(reason);
+
+  process.exit(1);
+});
+
+require('./env.js');
+
 const express = require('express');
 const compression = require('compression');
 const cors = require('cors');
 const path = require('path');
 const helmet = require('helmet');
 const morgan = require('morgan');
-
-require('./env.js');
 
 const HTTP_STATUS = require('./src/constants/httpStatus.js');
 const HTTP_CODE = require('./src/constants/httpCode.js');
@@ -55,6 +69,7 @@ const startServer = async () => {
      * * Redis workers
      * * Start server
      */
+
     await db.sequelize.authenticate();
 
     logger.info('Database connection has been established successfully.');
@@ -66,8 +81,6 @@ const startServer = async () => {
     }
 
     logger.info('Redis connected successfully.');
-
-    require('./src/queues/workers/email.worker');
 
     server = app.listen(PORT, () => {
       logger.info(`Server is running on port ${PORT} with build ${process.env.BUILD}`);
@@ -111,21 +124,5 @@ const gracefulShutdown = async (signal) => {
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-
-process.on('unhandledRejection', (err) => {
-  logger.error('Unhandled Rejection', {
-    message: err.message,
-    stack: err.stack
-  });
-  gracefulShutdown('Unhandled Rejection');
-});
-
-process.on('uncaughtException', (err) => {
-  logger.error('Uncaught Exception', {
-    message: err.message,
-    stack: err.stack
-  });
-  process.exit(1);
-});
 
 startServer();

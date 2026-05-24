@@ -6,7 +6,7 @@ const page_index = z.coerce
 
 const page_size = z.coerce
   .number({ required_error: 'Page size is required' })
-  .min(0, 'Page size cannot be negative')
+  .min(1, 'Page size cannot be negative')
   .max(100, 'Page size cannot exceed 100');
 
 const token = z.string({ required_error: 'Token is required' }).trim().min(1, 'Invalid token');

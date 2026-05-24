@@ -10,6 +10,7 @@ const {
   ctrlToggle
 } = require('../controllers/user.controller.js');
 
+const { auth } = require('../middlewares/auth.midddleware.js');
 const validate = require('../middlewares/validate.middleware');
 
 const {
@@ -23,14 +24,14 @@ const {
 
 router.post('/v1/api_selection', validate(selectionSchema), ctrlSelection);
 
-router.post('/v1/api_selectbyid', validate(selectByIdSchema), ctrlSelectById);
+router.post('/v1/api_selectbyid', auth, validate(selectByIdSchema), ctrlSelectById);
 
-router.post('/v1/api_selectall', validate(selectAllSchema), ctrlSelectAll);
+router.post('/v1/api_selectall', auth, validate(selectAllSchema), ctrlSelectAll);
 
-router.post('/v1/api_insert', validate(insertSchema), ctrlInsert);
+router.post('/v1/api_insert', auth, validate(insertSchema), ctrlInsert);
 
-router.post('/v1/api_update', validate(updateSchema), ctrlUpdate);
+router.post('/v1/api_update', auth, validate(updateSchema), ctrlUpdate);
 
-router.post('/v1/api_toggle', validate(toggleSchema), ctrlToggle);
+router.post('/v1/api_toggle', auth, validate(toggleSchema), ctrlToggle);
 
 module.exports = router;

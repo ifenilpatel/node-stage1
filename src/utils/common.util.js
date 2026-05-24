@@ -13,16 +13,31 @@ const getPaginationContext = (req) => {
   return { page_index, page_size, offset };
 };
 
-const throwNoData = (message = 'Data not found.') => {
-  throw new APIError(HTTP_STATUS.NOT_FOUND, HTTP_CODE.DATA_NOT_FOUND, message);
+const throwNoData = (message = 'Data not found.', data = null) => {
+  throw new APIError({
+    http_status: HTTP_STATUS.NOT_FOUND,
+    http_code: HTTP_CODE.DATA_NOT_FOUND,
+    message,
+    data
+  });
 };
 
-const throwBadRequest = (message = 'You do not have permission.') => {
-  throw new APIError(HTTP_STATUS.BAD_REQUEST, HTTP_CODE.BAD_REQUEST, message);
+const throwBadRequest = (message = 'Bad request.', data = null) => {
+  throw new APIError({
+    http_status: HTTP_STATUS.BAD_REQUEST,
+    http_code: HTTP_CODE.BAD_REQUEST,
+    message,
+    data
+  });
 };
 
-const throwForbidden = (message = 'You do not have permission.') => {
-  throw new APIError(HTTP_STATUS.FORBIDDEN, HTTP_CODE.FORBIDDEN, message);
+const throwForbidden = (message = 'You do not have permission.', data = null) => {
+  throw new APIError({
+    http_status: HTTP_STATUS.FORBIDDEN,
+    http_code: HTTP_CODE.FORBIDDEN,
+    message,
+    data
+  });
 };
 
 module.exports = {

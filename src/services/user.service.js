@@ -16,7 +16,7 @@ const select = async (params) => {
 
   if (free_text) {
     andConditions.push({
-      [Op.or]: [{ full_name: { [Op.iLike]: `%${free_text}%` } }]
+      [Op.or]: [{ first_name: { [Op.iLike]: `%${free_text}%` } }]
     });
   }
 
@@ -24,7 +24,7 @@ const select = async (params) => {
     where: { [Op.and]: andConditions },
     limit: page_size,
     offset,
-    order: [['full_name', 'ASC']]
+    order: [['first_name', 'ASC']]
   });
 
   let selected = [];
@@ -32,7 +32,7 @@ const select = async (params) => {
   if (page_index === 1 && selected_users.length) {
     selected = await User.findAll({
       where: { user_id: selected_users },
-      order: [['full_name', 'ASC']]
+      order: [['first_name', 'ASC']]
     });
   }
 
@@ -70,7 +70,7 @@ const list = async (params) => {
 
   if (free_text) {
     andConditions.push({
-      [Op.or]: [{ full_name: { [Op.iLike]: `%${free_text}%` } }]
+      [Op.or]: [{ first_name: { [Op.iLike]: `%${free_text}%` } }]
     });
   }
 
@@ -99,7 +99,7 @@ const create = async (params) => {
   try {
     const newUser = await User.create(
       {
-        full_name: params.full_name,
+        first_name: params.first_name,
         is_active: params.is_active
       },
       { transaction: t }
@@ -130,7 +130,7 @@ const update = async (params) => {
 
     await findUser.update(
       {
-        full_name: params.full_name,
+        first_name: params.first_name,
         is_active: params.is_active
       },
       { transaction: t }
