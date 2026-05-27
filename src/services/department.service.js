@@ -1,38 +1,38 @@
 const db = require('../../models');
-const { sequelize, Op, User } = db;
+const { sequelize, Op, Department } = db;
 
 const { throwNoData } = require('../utils/common.util.js');
 
 const select = async (params) => {
-  const { offset, page_index, page_size, selected_users = [], search = {} } = params;
+  const { offset, page_index, page_size, selected_departments = [], search = {} } = params;
 
   const free_text = (search.free_text || '').trim();
 
   const andConditions = [{ is_active: true }];
 
-  if (selected_users.length) {
-    andConditions.push({ user_id: { [Op.notIn]: selected_users } });
+  if (selected_departments.length) {
+    andConditions.push({ department_id: { [Op.notIn]: selected_departments } });
   }
 
   if (free_text) {
     andConditions.push({
-      [Op.or]: [{ first_name: { [Op.iLike]: `%${free_text}%` } }]
+      [Op.or]: [{ title: { [Op.iLike]: `%${free_text}%` } }]
     });
   }
 
-  const { rows, count } = await User.findAndCountAll({
+  const { rows, count } = await Department.findAndCountAll({
     where: { [Op.and]: andConditions },
     limit: page_size,
     offset,
-    order: [['first_name', 'ASC']]
+    order: [['title', 'ASC']]
   });
 
   let selected = [];
 
-  if (page_index === 1 && selected_users.length) {
-    selected = await User.findAll({
-      where: { user_id: selected_users },
-      order: [['first_name', 'ASC']]
+  if (page_index === 1 && selected_departments.length) {
+    selected = await Department.findAll({
+      where: { department_id: selected_departments },
+      order: [['title', 'ASC']]
     });
   }
 
@@ -46,17 +46,17 @@ const select = async (params) => {
 };
 
 const detail = async (params) => {
-  const { user_id } = params;
+  const { department_id } = params;
 
-  const findUser = await User.findOne({
-    where: { user_id }
+  const findDepartment = await Department.findOne({
+    where: { department_id }
   });
 
-  if (!findUser) {
-    throwNoData('User not found.');
+  if (!findDepartment) {
+    throwNoData('Department not found.');
   }
 
-  return findUser;
+  return findDepartment;
 };
 
 const list = async (params) => {
@@ -70,7 +70,7 @@ const list = async (params) => {
 
   if (free_text) {
     andConditions.push({
-      [Op.or]: [{ first_name: { [Op.iLike]: `%${free_text}%` } }]
+      [Op.or]: [{ title: { [Op.iLike]: `%${free_text}%` } }]
     });
   }
 
@@ -78,7 +78,7 @@ const list = async (params) => {
     andConditions.push({ is_active: status === 'active' });
   }
 
-  const { rows, count } = await User.findAndCountAll({
+  const { rows, count } = await Department.findAndCountAll({
     where: { [Op.and]: andConditions },
     limit: page_size,
     offset,
@@ -97,11 +97,10 @@ const create = async (params) => {
   const t = await sequelize.transaction();
 
   try {
-    const newUser = await User.create(
+    const newUser = await Department.create(
       {
-        first_name: params.first_name,
-        email: params.email,
-        password: params.password,
+        code: params.code,
+        title: params.title,
         is_active: params.is_active
       },
       { transaction: t }
@@ -109,7 +108,7 @@ const create = async (params) => {
 
     await t.commit();
 
-    return { inserted_id: newUser.user_id };
+    return { inserted_id: newUser.department_id };
   } catch (error) {
     await t.rollback();
     throw error;
@@ -120,21 +119,20 @@ const update = async (params) => {
   const t = await sequelize.transaction();
 
   try {
-    const findUser = await User.findOne({
-      where: { user_id: params.user_id },
+    const findDepartment = await Department.findOne({
+      where: { department_id: params.department_id },
       transaction: t,
       lock: t.LOCK.UPDATE
     });
 
-    if (!findUser) {
-      throwNoData('User not found.');
+    if (!findDepartment) {
+      throwNoData('Department not found.');
     }
 
-    await findUser.update(
+    await findDepartment.update(
       {
-        first_name: params.first_name,
-        email: params.email,
-        password: params.password,
+        code: params.code,
+        title: params.title,
         is_active: params.is_active
       },
       { transaction: t }
@@ -148,23 +146,23 @@ const update = async (params) => {
 };
 
 const toggle = async (params) => {
-  const { user_id } = params;
+  const { department_id } = params;
 
   const t = await sequelize.transaction();
   try {
-    const findUser = await User.findOne({
-      where: { user_id },
+    const findDepartment = await Department.findOne({
+      where: { department_id },
       transaction: t,
       lock: t.LOCK.UPDATE
     });
 
-    if (!findUser) {
-      throwNoData('User not found.');
+    if (!findDepartment) {
+      throwNoData('Department not found.');
     }
 
-    const is_active = !findUser.is_active;
+    const is_active = !findDepartment.is_active;
 
-    await findUser.update({ is_active }, { transaction: t });
+    await findDepartment.update({ is_active }, { transaction: t });
 
     await t.commit();
 

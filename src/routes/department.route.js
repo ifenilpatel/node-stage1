@@ -8,7 +8,7 @@ const {
   ctrlInsert,
   ctrlUpdate,
   ctrlToggle
-} = require('../controllers/user.controller.js');
+} = require('../controllers/department.controller.js');
 
 const { auth } = require('../middlewares/auth.midddleware.js');
 const validate = require('../middlewares/validate.middleware');
@@ -20,7 +20,7 @@ const {
   insertSchema,
   updateSchema,
   toggleSchema
-} = require('../validators/user.validation.js');
+} = require('../validators/department.validation.js');
 
 router.post('/v1/api_selection', auth, validate(selectionSchema), ctrlSelection);
 
@@ -28,7 +28,7 @@ router.post('/v1/api_selectbyid', auth, validate(selectByIdSchema), ctrlSelectBy
 
 router.post('/v1/api_selectall', auth, validate(selectAllSchema), ctrlSelectAll);
 
-router.post('/v1/api_insert', validate(insertSchema), ctrlInsert);
+router.post('/v1/api_insert', auth, validate(insertSchema), ctrlInsert);
 
 router.post('/v1/api_update', auth, validate(updateSchema), ctrlUpdate);
 

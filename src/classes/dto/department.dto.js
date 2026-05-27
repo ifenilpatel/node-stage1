@@ -1,10 +1,11 @@
-class UserDTO {
+class DepartmentDTO {
   constructor(body = {}) {
-    this.user_id = body.user_id ?? null;
-    this.first_name = body.first_name ?? null;
-    this.email = body.email ?? null;
-    this.password = body.password ?? null;
+    this.department_id = body.department_id ?? null;
+    this.code = body.code ?? null;
+    this.title = body.title ?? null;
     this.is_active = body.is_active ?? true;
+    this.created_by = body.created_by ?? true;
+    this.updated_by = body.updated_by ?? true;
   }
 
   static _getItem(entity) {
@@ -15,11 +16,11 @@ class UserDTO {
     if (!item) return null;
 
     return {
-      user_id: item.user_id,
-      first_name: item.first_name,
-      email: item.email,
-      password: item.password,
+      department_id: item.department_id,
+      code: item.code,
       is_active: item.is_active,
+      created_by: item.created_by,
+      updated_by: item.updated_by,
       created_at: item.created_at,
       updated_at: item.updated_at
     };
@@ -44,11 +45,12 @@ class UserDTO {
       const item = this._getItem(entity);
 
       return {
-        user_id: item.user_id,
-        first_name: item.first_name
+        department_id: item.department_id,
+        code: item.code,
+        title: item.title
       };
     });
   }
 }
 
-module.exports = UserDTO;
+module.exports = DepartmentDTO;
