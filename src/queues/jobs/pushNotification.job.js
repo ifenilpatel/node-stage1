@@ -1,21 +1,22 @@
 const { v4: uuidv4 } = require('uuid');
 
-const { emailQueue } = require('../index');
+const { pushNotificationQueue } = require('../index');
 
-const EMAIL_EVENTS = {
+const PUSH_NOTIFICATION_EVENTS = {
   REGISTER: 'REGISTER',
   FORGOT_PASSWORD: 'FORGOT_PASSWORD',
-  CHANGE_PASSWORD: 'CHANGE_PASSWORD'
+  CHANGE_PASSWORD: 'CHANGE_PASSWORD',
+  GENERAL: 'GENERAL'
 };
 
-const addEmailJob = async ({ event, payload }) => {
+const addPushNotificationJob = async ({ event, payload }) => {
   const customJobId = uuidv4();
 
   /**
    * Database (add when tbl_job migration + Job model exist):
    * await Job.create({
    *   job_id: customJobId,
-   *   queue_name: 'emailQueue',
+   *   queue_name: 'pushNotificationQueue',
    *   job_name: event,
    *   payload,
    *   status: 'PENDING',
@@ -23,7 +24,7 @@ const addEmailJob = async ({ event, payload }) => {
    * });
    */
 
-  await emailQueue.add(
+  await pushNotificationQueue.add(
     event,
     { job_id: customJobId, event, payload },
     {
@@ -39,6 +40,6 @@ const addEmailJob = async ({ event, payload }) => {
 };
 
 module.exports = {
-  addEmailJob,
-  EMAIL_EVENTS
+  addPushNotificationJob,
+  PUSH_NOTIFICATION_EVENTS
 };

@@ -20,11 +20,7 @@ const errorHandler = (err, req, res, next) => {
   });
 
   if (err instanceof APIError) {
-    return res.status(err.http_status).json({
-      http_code: err.http_code,
-      message: err.message,
-      data: err.data
-    });
+    return res.status(err.http_status).json(err.toJSON());
   }
 
   return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({

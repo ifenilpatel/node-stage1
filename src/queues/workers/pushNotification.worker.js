@@ -4,8 +4,8 @@ const redis = require('../../../config/redis.js');
 
 const logger = require('../../utils/logger.util.js');
 
-const emailWorker = new Worker(
-  'emailQueue',
+const pushNotificationWorker = new Worker(
+  'pushNotificationQueue',
   async (job) => {
     const { job_id, event, payload } = job.data;
 
@@ -23,19 +23,23 @@ const emailWorker = new Worker(
 
     switch (event) {
       case 'REGISTER':
-        logger.info('Processing REGISTER email', { job_id, payload });
+        logger.info('Processing REGISTER push notification', { job_id, payload });
         break;
 
       case 'FORGOT_PASSWORD':
-        logger.info('Processing FORGOT_PASSWORD email', { job_id, payload });
+        logger.info('Processing FORGOT_PASSWORD push notification', { job_id, payload });
         break;
 
       case 'CHANGE_PASSWORD':
-        logger.info('Processing CHANGE_PASSWORD email', { job_id, payload });
+        logger.info('Processing CHANGE_PASSWORD push notification', { job_id, payload });
+        break;
+
+      case 'GENERAL':
+        logger.info('Processing GENERAL push notification', { job_id, payload });
         break;
 
       default:
-        throw new Error(`Unknown email event ${event}`);
+        throw new Error(`Unknown push notification event ${event}`);
     }
 
     /**
@@ -53,12 +57,15 @@ const emailWorker = new Worker(
   }
 );
 
-emailWorker.on('completed', (job) => {
-  logger.info('Email job completed', { bullmq_job_id: job.id, job_id: job.data?.job_id });
+pushNotificationWorker.on('completed', (job) => {
+  logger.info('Push notification job completed', {
+    bullmq_job_id: job.id,
+    job_id: job.data?.job_id
+  });
 });
 
-emailWorker.on('failed', async (job, error) => {
-  logger.error('Email job failed', {
+pushNotificationWorker.on('failed', async (job, error) => {
+  logger.error('Push notification job failed', {
     bullmq_job_id: job?.id,
     job_id: job?.data?.job_id,
     message: error.message,
@@ -83,11 +90,11 @@ emailWorker.on('failed', async (job, error) => {
    */
 });
 
-emailWorker.on('error', (error) => {
-  logger.error('Email worker error', {
+pushNotificationWorker.on('error', (error) => {
+  logger.error('Push notification worker error', {
     message: error.message,
     stack: error.stack
   });
 });
 
-module.exports = emailWorker;
+module.exports = pushNotificationWorker;

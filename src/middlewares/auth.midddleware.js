@@ -5,9 +5,6 @@ const { User } = db;
 
 const APIError = require('../classes/APIError.js');
 
-const HTTP_CODE = require('../constants/httpCode');
-const HTTP_STATUS = require('../constants/httpStatus');
-
 const redisUtil = require('../utils/redis.util.js');
 
 const auth = async (req, res, next) => {
@@ -15,21 +12,13 @@ const auth = async (req, res, next) => {
     const authorization = req.headers.authorization;
 
     if (!authorization) {
-      throw new APIError({
-        http_status: HTTP_STATUS.UNAUTHORIZED,
-        http_code: HTTP_CODE.UNAUTHORIZED,
-        message: 'Authorization token is required'
-      });
+      throw APIError.unauthorized('Authorization token is required');
     }
 
     const [type, token] = authorization.split(' ');
 
     if (type !== 'Bearer' || !token) {
-      throw new APIError({
-        http_status: HTTP_STATUS.UNAUTHORIZED,
-        http_code: HTTP_CODE.UNAUTHORIZED,
-        message: 'Invalid authorization format'
-      });
+      throw APIError.unauthorized('Invalid authorization format');
     }
 
     let decoded;
@@ -37,29 +26,17 @@ const auth = async (req, res, next) => {
     try {
       decoded = jwt.verify(token, process.env.TOKEN_SECRET);
     } catch {
-      throw new APIError({
-        http_status: HTTP_STATUS.UNAUTHORIZED,
-        http_code: HTTP_CODE.UNAUTHORIZED,
-        message: 'Invalid or expired token'
-      });
+      throw APIError.unauthorized('Invalid or expired token');
     }
 
     const session = await redisUtil.get(`session:${decoded.user_id}`);
 
     if (!session) {
-      throw new APIError({
-        http_status: HTTP_STATUS.UNAUTHORIZED,
-        http_code: HTTP_CODE.UNAUTHORIZED,
-        message: 'Session expired'
-      });
+      throw APIError.unauthorized('Session expired');
     }
 
     if (session.access_token !== token) {
-      throw new APIError({
-        http_status: HTTP_STATUS.UNAUTHORIZED,
-        http_code: HTTP_CODE.UNAUTHORIZED,
-        message: 'Invalid session token'
-      });
+      throw APIError.unauthorized('Invalid session token');
     }
 
     let user = session;
@@ -68,11 +45,7 @@ const auth = async (req, res, next) => {
       const findUser = await User.findByPk(decoded.user_id);
 
       if (!findUser) {
-        throw new APIError({
-          http_status: HTTP_STATUS.UNAUTHORIZED,
-          http_code: HTTP_CODE.UNAUTHORIZED,
-          message: 'User not found'
-        });
+        throw APIError.unauthorized('User not found');
       }
 
       user = findUser;

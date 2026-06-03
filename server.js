@@ -44,6 +44,12 @@ const startServer = async () => {
 
     logger.info('Redis connected successfully.');
 
+    require('./src/queues/workers/email.worker.js');
+    logger.info('Email queue worker started.');
+
+    require('./src/queues/workers/pushNotification.worker.js');
+    logger.info('Push notification queue worker started.');
+
     server = app.listen(PORT, () => {
       logger.info(`Server is running on port ${PORT} with build ${process.env.BUILD}`);
     });

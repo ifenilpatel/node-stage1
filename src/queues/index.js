@@ -6,6 +6,11 @@ const emailQueue = new Queue('emailQueue', {
   connection: redis
 });
 
+const pushNotificationQueue = new Queue('pushNotificationQueue', {
+  connection: redis
+});
+
 module.exports = {
-  emailQueue
+  emailQueue,
+  pushNotificationQueue
 };
