@@ -17,6 +17,8 @@ const app = require('./src/app.js');
 const db = require('./models');
 const redis = require('./config/redis.js');
 
+const registerPubSubHandlers = require('./src/pubsub/handlers.js');
+const pubsub = require('./src/utils/pubsub.util.js');
 const logger = require('./src/utils/logger.util.js');
 
 const PORT = process.env.PORT || 3000;
@@ -43,6 +45,10 @@ const startServer = async () => {
     }
 
     logger.info('Redis connected successfully.');
+
+    registerPubSubHandlers();
+    pubsub.initSubscriber();
+    logger.info('Redis pub/sub started.');
 
     require('./src/queues/workers/email.worker.js');
     logger.info('Email queue worker started.');
@@ -78,9 +84,9 @@ const gracefulShutdown = async (signal) => {
 
     logger.info('Database connection closed.');
 
-    await redis.quit();
+    await redis.quitAll();
 
-    logger.info('Redis connection closed.');
+    logger.info('Redis connections closed.');
 
     logger.info('Graceful shutdown completed. Exiting.');
     process.exit(0);

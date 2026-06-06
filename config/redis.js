@@ -1,31 +1,51 @@
+require('../env.js');
+
 const Redis = require('ioredis');
 
 const logger = require('../src/utils/logger.util.js');
 
-const redis = new Redis({
+const redisOptions = {
   host: process.env.REDIS_HOST,
-  port: process.env.REDIS_PORT,
+  port: Number(process.env.REDIS_PORT) || 6379,
   password: process.env.REDIS_PASSWORD || undefined,
   maxRetriesPerRequest: null,
   enableReadyCheck: true,
-
   reconnectOnError: () => true
-});
+};
 
-redis.on('connect', () => {
-  logger.info('Redis connected');
-});
+const attachListeners = (client, label) => {
+  client.on('connect', () => {
+    logger.info(`Redis ${label} connected`);
+  });
 
-redis.on('ready', () => {
-  logger.info('Redis ready');
-});
+  client.on('ready', () => {
+    logger.info(`Redis ${label} ready`);
+  });
 
-redis.on('error', (error) => {
-  logger.error('Redis error', { message: error.message, stack: error.stack });
-});
+  client.on('error', (error) => {
+    logger.error(`Redis ${label} error`, { message: error.message, stack: error.stack });
+  });
 
-redis.on('close', () => {
-  logger.warn('Redis connection closed');
-});
+  client.on('close', () => {
+    logger.warn(`Redis ${label} connection closed`);
+  });
+};
+
+const createClient = (label) => {
+  const client = new Redis(redisOptions);
+  attachListeners(client, label);
+  return client;
+};
+
+const redis = createClient('client');
+const publisher = createClient('publisher');
+const subscriber = createClient('subscriber');
+
+const quitAll = async () => {
+  await Promise.all([redis.quit(), publisher.quit(), subscriber.quit()]);
+};
 
 module.exports = redis;
+module.exports.publisher = publisher;
+module.exports.subscriber = subscriber;
+module.exports.quitAll = quitAll;
